@@ -7,9 +7,16 @@
     android:padding="24dp">
 
     <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/started"
+        android:textSize="24sp" />
+
+    <TextView
         android:id="@+id/status_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
         android:textSize="18sp" />
 
     <Button
