@@ -56,12 +56,14 @@ class SkipService : AccessibilityService() {
             currentPackage = pkg
             switchTime = now
             clicked = false
-            log("切换到 App：$pkg")
+            val note = if (SkipSettings.isAllowed(this, pkg)) "" else "（不在白名单，不处理）"
+            log("切换到 App：$pkg$note")
         }
 
         // 只处理：当前 App 的界面、这次还没点过、切换过来 5 秒以内
         if (pkg != currentPackage || pkg in ignoredPackages || clicked) return
         if (now - switchTime > SKIP_WINDOW_MS) return
+        if (!SkipSettings.isAllowed(this, pkg)) return // 白名单：没勾选的 App 不处理
 
         for (window in windows) {
             val root = window.root ?: continue

@@ -10,6 +10,11 @@
         <intent>
             <action android:name="android.view.InputMethod" />
         </intent>
+        <!-- 让"选择生效的 App"页面能列出手机上的 App（Android 11 起必须声明） -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
     </queries>
 
     <application
@@ -25,6 +30,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".AppPickerActivity"
+            android:exported="false"
+            android:label="@string/pick_apps" />
 
         <!-- 自动点"跳过"的无障碍服务，配置在 res/xml/accessibility_service_config.xml -->
         <service

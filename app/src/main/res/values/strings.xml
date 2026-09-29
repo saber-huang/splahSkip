@@ -5,6 +5,12 @@
     <string name="service_off">无障碍服务：未开启</string>
     <string name="enable_skip">启用自动跳过</string>
     <string name="open_settings">去开启无障碍服务</string>
+    <string name="pick_apps">选择生效的 App</string>
+    <string name="pick_apps_first">请先选择 App</string>
+    <string name="apps_selected">已选择 %d 个 App</string>
+    <string name="pick_tip">勾选的 App 才会自动跳过开屏广告</string>
+    <string name="loading">正在加载…</string>
+    <string name="no_apps">没有读取到已安装的 App</string>
     <string name="skip_count">已成功跳过 %d 次</string>
-    <string name="service_description">打开 App 后的 5 秒内，自动点击开屏广告上的“跳过”按钮。本应用不联网，不上传任何内容。</string>
+    <string name="service_description">打开 App 后的 5 秒内，自动点击开屏广告上的“跳过”按钮，只对你勾选的 App 生效。本应用不联网，不上传任何内容。</string>
 </resources>

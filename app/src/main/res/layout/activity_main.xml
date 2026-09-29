@@ -34,6 +34,20 @@
         android:text="@string/enable_skip"
         android:textSize="18sp" />
 
+    <Button
+        android:id="@+id/pick_apps_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/pick_apps" />
+
+    <TextView
+        android:id="@+id/allowed_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="14sp" />
+
     <TextView
         android:id="@+id/count_text"
         android:layout_width="wrap_content"
