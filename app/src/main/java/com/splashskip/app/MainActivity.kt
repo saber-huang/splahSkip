@@ -36,14 +36,21 @@ class MainActivity : Activity() {
 
         // 防止被系统关闭：能打开设置页就跳过去并提示怎么设置，打不开就弹出手动设置的说明
         findViewById<Button>(R.id.keep_alive_button).setOnClickListener {
-            if (KeepAlive.openSettings(this)) {
-                Toast.makeText(this, R.string.keep_alive_toast, Toast.LENGTH_LONG).show()
-            } else {
+            val page = KeepAlive.openSettings(this)
+            if (page == null) {
                 AlertDialog.Builder(this)
                     .setTitle(R.string.keep_alive_guide_title)
                     .setMessage(R.string.keep_alive_guide)
                     .setPositiveButton(android.R.string.ok, null)
                     .show()
+            } else {
+                // 不同的页面里要做的事不一样，提示也不一样
+                val hint = when (page) {
+                    KeepAlive.Page.HUAWEI_STARTUP -> R.string.keep_alive_hint_startup
+                    KeepAlive.Page.APP_DETAILS -> R.string.keep_alive_hint_details
+                    KeepAlive.Page.BATTERY_LIST -> R.string.keep_alive_hint_battery
+                }
+                Toast.makeText(this, hint, Toast.LENGTH_LONG).show()
             }
         }
 

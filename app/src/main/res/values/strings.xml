@@ -12,7 +12,9 @@
     <string name="loading">正在加载…</string>
     <string name="no_apps">没有读取到已安装的 App</string>
     <string name="keep_alive">防止被系统关闭</string>
-    <string name="keep_alive_toast">请找到 SplashSkip，改成“手动管理”，并打开“自启动”“关联启动”“后台活动”三个开关</string>
+    <string name="keep_alive_hint_startup">请找到 SplashSkip，改成“手动管理”，并打开“自启动”“关联启动”“后台活动”三个开关</string>
+    <string name="keep_alive_hint_details">华为手机请点“电池”→“应用启动管理”，改成“手动管理”并打开三个开关；其他手机请把电池设成“无限制”</string>
+    <string name="keep_alive_hint_battery">在列表里找到 SplashSkip，设为允许；列表里没有它也没关系</string>
     <string name="keep_alive_guide_title">请手动设置</string>
     <string name="keep_alive_guide">没能自动打开设置页，请按下面的步骤手动设置，防止系统在后台把 SplashSkip 关掉：\n\n华为 / 荣耀手机：\n设置 → 电池 → 应用启动管理 → 找到 SplashSkip → 改成“手动管理” → 打开“自启动”“关联启动”“后台活动”三个开关。\n找不到的话，在设置顶部的搜索框里搜“启动管理”。\n\n其他品牌手机：\n在系统设置里找到 SplashSkip，把电池设置成“无限制”或“不优化”，并允许自启动和后台运行。</string>
     <string name="skip_count">已成功跳过 %d 次</string>

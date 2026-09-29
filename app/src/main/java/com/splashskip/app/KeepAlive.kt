@@ -24,32 +24,38 @@ object KeepAlive {
         "com.huawei.systemmanager.optimize.process.ProtectActivity",
     )
 
-    /** 打开设置页，成功返回 true；所有页面都打不开返回 false，由调用方显示手动设置的说明 */
-    fun openSettings(activity: Activity): Boolean {
-        for (intent in candidateIntents(activity)) {
+    /** 最终打开的是哪一种页面，界面根据它提示用户在页面里该做什么 */
+    enum class Page { HUAWEI_STARTUP, APP_DETAILS, BATTERY_LIST }
+
+    /** 打开设置页并返回打开的是哪种页面；所有页面都打不开返回 null，由调用方显示手动设置的说明 */
+    fun openSettings(activity: Activity): Page? {
+        for ((page, intent) in candidates(activity)) {
             try {
                 activity.startActivity(intent)
-                Log.i(TAG, "已打开设置页：$intent")
-                return true
+                Log.i(TAG, "已打开设置页：$page $intent")
+                return page
             } catch (e: Exception) {
                 // 这个页面在这台手机上没有，或者不允许打开，试下一个
-                Log.i(TAG, "打不开设置页：$intent（${e.javaClass.simpleName}）")
+                Log.i(TAG, "打不开设置页：$page $intent（${e.javaClass.simpleName}）")
             }
         }
-        return false
+        return null
     }
 
-    private fun candidateIntents(context: Context): List<Intent> {
-        val intents = mutableListOf<Intent>()
-
+    private fun candidates(context: Context): List<Pair<Page, Intent>> {
         val brand = Build.MANUFACTURER.lowercase()
-        if (brand.contains("huawei") || brand.contains("honor")) {
-            HUAWEI_PAGES.forEach { intents += Intent().setClassName(HUAWEI_MANAGER, it) }
-        }
+        val isHuawei = brand.contains("huawei") || brand.contains("honor")
 
-        // 所有手机通用：电池优化列表，以及本 App 的应用信息页
-        intents += Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-        intents += Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null))
-        return intents
+        val huaweiPages = if (isHuawei) {
+            HUAWEI_PAGES.map { Page.HUAWEI_STARTUP to Intent().setClassName(HUAWEI_MANAGER, it) }
+        } else {
+            emptyList()
+        }
+        val appDetails = Page.APP_DETAILS to
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null))
+        val batteryList = Page.BATTERY_LIST to Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+
+        // 华为上，从应用信息页进"电池"能找到"应用启动管理"；通用的电池优化列表里往往根本没有本 App，所以放后面
+        return huaweiPages + if (isHuawei) listOf(appDetails, batteryList) else listOf(batteryList, appDetails)
     }
 }
