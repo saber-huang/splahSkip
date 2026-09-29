@@ -40,6 +40,13 @@ class SkipService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
+
+        // 总开关关闭：不扫描、不点击。同时忘掉当前 App，这样重新打开开关后，下一次切换 App 能被正确识别
+        if (!SkipSettings.isEnabled(this)) {
+            currentPackage = null
+            return
+        }
+
         val pkg = event.packageName?.toString() ?: return
         val now = SystemClock.elapsedRealtime()
 
