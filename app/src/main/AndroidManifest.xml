@@ -36,6 +36,11 @@
             android:exported="false"
             android:label="@string/pick_apps" />
 
+        <activity
+            android:name=".RulesActivity"
+            android:exported="false"
+            android:label="@string/rules" />
+
         <!-- 自动点"跳过"的无障碍服务，配置在 res/xml/accessibility_service_config.xml -->
         <service
             android:name=".SkipService"

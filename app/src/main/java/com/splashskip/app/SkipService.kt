@@ -12,7 +12,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 import android.view.inputmethod.InputMethod
 
 /**
- * 无障碍服务：每次切换到一个新 App，在前 5 秒内找"跳过"按钮，找到就点一下。
+ * 无障碍服务：每次切换到一个新 App，在设定的时间内（默认 5 秒）找"跳过"按钮，找到就点一下。
  * 在 Android Studio 的 Logcat 里搜 SplashSkip，可以看到它每一步做了什么。
  */
 class SkipService : AccessibilityService() {
@@ -60,9 +60,9 @@ class SkipService : AccessibilityService() {
             log("切换到 App：$pkg$note")
         }
 
-        // 只处理：当前 App 的界面、这次还没点过、切换过来 5 秒以内
+        // 只处理：当前 App 的界面、这次还没点过、切换过来的时间没超过设定的秒数
         if (pkg != currentPackage || pkg in ignoredPackages || clicked) return
-        if (now - switchTime > SKIP_WINDOW_MS) return
+        if (now - switchTime > SkipSettings.windowSeconds(this) * 1000L) return
         if (!SkipSettings.isAllowed(this, pkg)) return // 白名单：没勾选的 App 不处理
 
         for (window in windows) {
@@ -84,12 +84,16 @@ class SkipService : AccessibilityService() {
 
     /** 从外到内一层层检查界面上的元素，找到"跳过"并点成功就返回 true */
     private fun findAndClickSkip(root: AccessibilityNodeInfo): Boolean {
+        // 每次扫描只读一次规则，不要每个元素都去读
+        val keywords = SkipSettings.keywords(this)
+        val maxLength = SkipSettings.maxLength(this)
         val queue = ArrayDeque(listOf(root))
         var visited = 0
         while (queue.isNotEmpty() && visited < MAX_NODES) {
             val node = queue.removeFirst()
             visited++
-            val isSkip = SkipMatcher.isSkipText(node.text) || SkipMatcher.isSkipText(node.contentDescription)
+            val isSkip = SkipMatcher.isSkipText(node.text, keywords, maxLength) ||
+                SkipMatcher.isSkipText(node.contentDescription, keywords, maxLength)
             if (isSkip && node.isVisibleToUser && click(node)) return true
             for (i in 0 until node.childCount) {
                 node.getChild(i)?.let { queue.add(it) }
@@ -177,7 +181,6 @@ class SkipService : AccessibilityService() {
 
     companion object {
         private const val TAG = "SplashSkip"
-        private const val SKIP_WINDOW_MS = 5_000L // 切换 App 后多久内有效
         private const val MAX_NODES = 1000 // 每次最多检查多少个界面元素，防止界面太复杂时卡顿
         private const val MAX_PARENT_LEVELS = 3 // 从文字往外最多找几层可点击的按钮
         private const val TAP_DURATION_MS = 50L

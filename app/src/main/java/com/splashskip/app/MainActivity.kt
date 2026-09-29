@@ -34,6 +34,11 @@ class MainActivity : Activity() {
             startActivity(Intent(this, AppPickerActivity::class.java))
         }
 
+        // 修改"跳过"的规则（关键词、生效时间、文字长度）
+        findViewById<Button>(R.id.rules_button).setOnClickListener {
+            startActivity(Intent(this, RulesActivity::class.java))
+        }
+
         // 防止被系统关闭：能打开设置页就跳过去并提示怎么设置，打不开就弹出手动设置的说明
         findViewById<Button>(R.id.keep_alive_button).setOnClickListener {
             val page = KeepAlive.openSettings(this)
