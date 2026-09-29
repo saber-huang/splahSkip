@@ -1,12 +1,14 @@
 package com.splashskip.app
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Button
 import android.widget.Switch
 import android.widget.TextView
+import android.widget.Toast
 
 class MainActivity : Activity() {
 
@@ -30,6 +32,19 @@ class MainActivity : Activity() {
         // 选择哪些 App 需要自动跳过
         findViewById<Button>(R.id.pick_apps_button).setOnClickListener {
             startActivity(Intent(this, AppPickerActivity::class.java))
+        }
+
+        // 防止被系统关闭：能打开设置页就跳过去并提示怎么设置，打不开就弹出手动设置的说明
+        findViewById<Button>(R.id.keep_alive_button).setOnClickListener {
+            if (KeepAlive.openSettings(this)) {
+                Toast.makeText(this, R.string.keep_alive_toast, Toast.LENGTH_LONG).show()
+            } else {
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.keep_alive_guide_title)
+                    .setMessage(R.string.keep_alive_guide)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+            }
         }
 
         // 打开系统的无障碍设置页，在里面找到 SplashSkip 并打开
