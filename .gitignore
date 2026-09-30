@@ -17,3 +17,4 @@ keystore.properties
 # 编译出来的安装包不放进代码仓库，要发布请挂在 GitHub Releases 上
 *.apk
 *.aab
+promo/out/
