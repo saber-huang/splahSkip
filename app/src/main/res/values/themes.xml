@@ -22,14 +22,14 @@
     <!-- ===== 常用样式：布局里用 style="@style/…" 引用，想统一改外观只改这里 ===== -->
 
     <!-- 白色圆角卡片 -->
-    <style name="Widget.SplashSkip.Card">
+    <style name="Widget.SplashSkip.Card" parent="">
         <item name="android:background">@drawable/bg_card</item>
         <item name="android:elevation">2dp</item>
         <item name="android:clipToOutline">true</item>
     </style>
 
     <!-- 卡片里一行可以点的设置项 -->
-    <style name="Widget.SplashSkip.Row">
+    <style name="Widget.SplashSkip.Row" parent="">
         <item name="android:minHeight">64dp</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:gravity">center_vertical</item>
@@ -39,18 +39,18 @@
         <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
 
-    <style name="Text.Title">
+    <style name="Text.Title" parent="">
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="Text.Caption">
+    <style name="Text.Caption" parent="">
         <item name="android:textColor">@color/text_secondary</item>
         <item name="android:textSize">13sp</item>
     </style>
 
-    <style name="Text.Section">
+    <style name="Text.Section" parent="">
         <item name="android:textColor">@color/text_secondary</item>
         <item name="android:textSize">13sp</item>
         <item name="android:textStyle">bold</item>
@@ -83,7 +83,7 @@
     </style>
 
     <!-- 输入框 -->
-    <style name="Widget.SplashSkip.Input">
+    <style name="Widget.SplashSkip.Input" parent="">
         <item name="android:background">@drawable/bg_input</item>
         <item name="android:padding">12dp</item>
         <item name="android:textColor">@color/text_primary</item>
