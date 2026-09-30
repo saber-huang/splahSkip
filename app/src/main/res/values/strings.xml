@@ -57,6 +57,17 @@
     <string name="diag_copy_failed">复制失败，内容可能太大，请试试“复制最近一次”</string>
     <string name="diag_nothing_to_copy">还没有记录可以复制</string>
     <string name="diag_cleared">已清空</string>
+    <string name="help">使用说明与隐私</string>
+    <string name="help_summary">怎么用、没跳过怎么办、隐私说明</string>
+    <string name="help_title_steps">怎么使用</string>
+    <string name="help_steps">1. 点首页的“去开启无障碍服务”，在系统设置里找到 SplashSkip 并打开。系统会提示“可以读取屏幕内容”，这是无障碍服务的标准提示。\n\n2. 点“选择生效的 App”，勾选想自动跳过广告的 App。没勾选的 App 不会被处理。\n\n3. 点“防止被系统关闭”，按提示把 SplashSkip 设置成不被系统在后台关掉，否则用着用着会失效。\n\n4. 把要跳广告的 App 从多任务界面划掉，再重新打开，广告出现时会自动点“跳过”。</string>
+    <string name="help_title_faq">没有跳过怎么办</string>
+    <string name="help_faq">· 先确认首页显示“已开启”，“启用自动跳过”是打开的，并且这个 App 已经勾选。\n\n· 首页显示“未开启”，或者用了一阵子突然失效：多半是被系统在后台关掉了，点“防止被系统关闭”按提示设置，再重新开一次无障碍服务。\n\n· 如果按钮上的字不是“跳过”，可以在“规则设置”里加上。但不要加“广告”“VIP”这类词，可能会点到“去广告”的会员按钮。\n\n· 按钮上只有“×”，没有文字：打开“诊断记录”，记录一次后复制给作者排查。</string>
+    <string name="help_title_privacy">隐私说明</string>
+    <string name="help_privacy">· SplashSkip 没有联网权限，不会上传任何内容。\n\n· 只在你打开已勾选的 App 后的几秒内，检查屏幕上有没有“跳过”按钮。检查只在手机内存里比对文字，不保存、不外传。\n\n· “诊断记录”默认关闭。开启后，会把屏幕上元素的文字等信息保存在这台手机上（输入框和密码框里的内容不会记录），只有你自己点“复制”才会离开这个页面。\n\n· 所有设置都只保存在这台手机上。</string>
+    <string name="help_title_about">关于</string>
+    <string name="help_about">仅供个人使用，不提供任何担保。开屏广告是很多 App 的收入来源，部分 App 的服务条款可能不允许使用这类工具，请自行判断。</string>
+    <string name="help_version">SplashSkip 版本 %s</string>
     <string name="keep_alive">防止被系统关闭</string>
     <string name="keep_alive_hint_startup">请找到 SplashSkip，改成“手动管理”，并打开“自启动”“关联启动”“后台活动”三个开关</string>
     <string name="keep_alive_hint_details">华为手机请点“电池”→“应用启动管理”，改成“手动管理”并打开三个开关；其他手机请把电池设成“无限制”</string>

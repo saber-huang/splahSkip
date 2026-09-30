@@ -45,6 +45,12 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="Text.Body" parent="">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingExtra">4dp</item>
+    </style>
+
     <style name="Text.Caption" parent="">
         <item name="android:textColor">@color/text_secondary</item>
         <item name="android:textSize">13sp</item>

@@ -56,6 +56,11 @@ class MainActivity : Activity() {
             startActivity(Intent(this, DiagnosticsActivity::class.java))
         }
 
+        // 使用说明与隐私
+        findViewById<View>(R.id.help_button).setOnClickListener {
+            startActivity(Intent(this, HelpActivity::class.java))
+        }
+
         // 防止被系统关闭：能打开设置页就跳过去并提示怎么设置，打不开就弹出手动设置的说明
         findViewById<View>(R.id.keep_alive_button).setOnClickListener {
             val page = KeepAlive.openSettings(this)
@@ -79,6 +84,12 @@ class MainActivity : Activity() {
         // 打开系统的无障碍设置页，在里面找到 SplashSkip 并打开
         openSettingsButton.setOnClickListener {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+        }
+
+        // 第一次打开 App：自动显示一次使用说明，之后从首页的"使用说明与隐私"进入
+        if (!SkipSettings.isHelpShown(this)) {
+            SkipSettings.setHelpShown(this)
+            startActivity(Intent(this, HelpActivity::class.java))
         }
     }
 

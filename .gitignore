@@ -9,3 +9,11 @@
 .externalNativeBuild/
 .cxx/
 .kotlin/
+
+# 签名密钥和密码——绝对不能提交到公开仓库，丢了也无法找回
+*.jks
+*.keystore
+keystore.properties
+# 编译出来的安装包不放进代码仓库，要发布请挂在 GitHub Releases 上
+*.apk
+*.aab

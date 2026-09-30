@@ -12,6 +12,7 @@ object SkipSettings {
     private const val KEY_KEYWORDS = "keywords"
     private const val KEY_ID_KEYWORDS = "id_keywords"
     private const val KEY_DIAGNOSTICS = "diagnostics"
+    private const val KEY_HELP_SHOWN = "help_shown"
     private const val KEY_MAX_LENGTH = "max_length"
     private const val KEY_WINDOW_SECONDS = "window_seconds"
 
@@ -73,5 +74,12 @@ object SkipSettings {
 
     fun setDiagnosticsEnabled(context: Context, enabled: Boolean) {
         prefs(context).edit().putBoolean(KEY_DIAGNOSTICS, enabled).apply()
+    }
+
+    /** 使用说明是不是已经自动显示过：只在第一次打开 App 时自动显示一次，之后从首页进入 */
+    fun isHelpShown(context: Context): Boolean = prefs(context).getBoolean(KEY_HELP_SHOWN, false)
+
+    fun setHelpShown(context: Context) {
+        prefs(context).edit().putBoolean(KEY_HELP_SHOWN, true).apply()
     }
 }
