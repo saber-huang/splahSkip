@@ -1,0 +1,12 @@
+{
+  "name": "splashskip-promo",
+  "private": true,
+  "description": "逐帧渲染 SplashSkip 抖音宣传视频",
+  "type": "module",
+  "scripts": {
+    "build": "./build.sh"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}

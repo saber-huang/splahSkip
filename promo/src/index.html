@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SplashSkip Promo</title>
+<!--
+  宣传视频的画面。1080x1920，每一帧都由 renderFrame(t) 按时间 t（秒）算出来，
+  render.mjs 逐帧调用它再截图，所以没有 CSS 动画，结果完全可重复。
+  录屏素材是 ../out/frames/{a,b}/NNNN.jpg（build.sh 生成）：a = 没装，b = 装了。
+-->
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#05060b}
+body{font-family:"Inter","Noto Sans CJK SC",sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+.cjk{font-family:"Noto Sans CJK SC",sans-serif}
+.halt{font-family:"Noto Sans CJK SC",sans-serif;font-feature-settings:"halt"} /* 中文标点用半宽，去掉引号、问号自带的空白 */
+.layer{position:absolute;left:0;top:0;width:1080px;height:1920px}
+.row{position:absolute;left:0;width:1080px;text-align:center;white-space:nowrap}
+svg.i{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.i.solid{fill:currentColor;stroke:none}
+
+/* ---------- 背景：会慢慢漂移、随场景换色的光斑 + 点阵 + 暗角 ---------- */
+.blob{position:absolute;left:0;top:0;width:1500px;height:1500px;border-radius:50%}
+#dots{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.09) 1.6px,transparent 1.8px);background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(ellipse 75% 60% at 50% 42%,#000 20%,transparent 78%)}
+#vig{position:absolute;inset:0;background:radial-gradient(ellipse 95% 75% at 50% 45%,transparent 50%,rgba(0,0,0,.6) 100%)}
+
+/* ---------- 第一幕：开头提问 ---------- */
+#h1{top:585px;font-size:54px;font-weight:500;color:rgba(255,255,255,.72);letter-spacing:3px}
+#h2{top:668px;font-size:116px;font-weight:900;line-height:1.25}
+#h2 span,#word span{display:inline-block}
+#h3row{top:850px}
+#h3{position:relative;display:inline-block;padding:0 30px;font-size:156px;font-weight:900;line-height:1.22;color:#0b0b12}
+#h3mark{position:absolute;left:0;top:9%;width:100%;height:86%;border-radius:24px;background:#ffd60a;transform-origin:0 50%;box-shadow:0 0 90px rgba(255,214,10,.35)}
+#h3t{position:relative;display:inline-block}
+#pillrow{top:1156px}
+#pill{display:inline-flex;align-items:center;gap:22px;height:124px;padding:0 56px;border-radius:62px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.26);backdrop-filter:blur(18px)}
+#pillNum{display:inline-block;min-width:46px;font-size:76px;font-weight:800;font-feature-settings:"tnum"}
+#pillTxt{font-size:60px;font-weight:700}
+
+/* ---------- 第二幕：左右对比 ---------- */
+#ch1{top:160px;font-size:66px;font-weight:900}
+#ch1 .dot{color:#22d3ee;margin:0 14px}
+#ch2{top:262px;font-size:36px;font-weight:500;color:rgba(255,255,255,.62);letter-spacing:2px}
+#rig{transform-origin:754px 802px}
+.phone{position:absolute;top:380px;width:408px;height:844px;padding:10px;border-radius:62px;
+  background:linear-gradient(150deg,#3a4152 0%,#11141c 30%,#0b0d13 70%,#2a303d 100%)}
+.screen{position:relative;width:388px;height:824px;border-radius:52px;overflow:hidden;background:#fff}
+.screen img{display:block;width:388px;height:824px}
+#phoneL{left:98px}
+#phoneR{left:550px}
+.tag{position:absolute;top:346px;height:68px;display:flex;align-items:center;gap:10px;padding:0 30px 0 24px;border-radius:34px;font-size:36px;font-weight:900;white-space:nowrap}
+.tag svg{width:34px;height:34px;stroke-width:3.4}
+.tag.bad{background:linear-gradient(135deg,#ff6b6b,#e11d48);box-shadow:0 14px 34px rgba(225,29,72,.45)}
+.tag.good{background:linear-gradient(135deg,#34d399,#059669);box-shadow:0 14px 34px rgba(5,150,105,.45)}
+.timer{position:absolute;top:1252px;width:340px;height:98px;padding-bottom:10px;border-radius:30px;display:flex;align-items:center;justify-content:center;gap:12px;
+  background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.13);backdrop-filter:blur(16px)}
+.timer svg{width:40px;height:40px;stroke-width:2.2}
+.timer .lbl{font-size:30px;font-weight:600;color:rgba(255,255,255,.6)}
+.timer .val{width:124px;font-size:54px;font-weight:800;font-feature-settings:"tnum";letter-spacing:-1px}
+.track{position:absolute;left:24px;right:24px;bottom:13px;height:6px;border-radius:3px;background:rgba(255,255,255,.09);overflow:hidden}
+.fill{width:0;height:6px;border-radius:3px}
+.res{position:absolute;top:1372px;display:flex;align-items:center;gap:8px;font-size:38px;font-weight:900;white-space:nowrap}
+.res svg{width:38px;height:38px;stroke-width:3.2}
+.res.wait{font-size:36px;font-weight:600;color:#ff8a95}
+.ring{position:absolute;border-radius:50%;border:4px solid #6ee7b7}
+#tap{position:absolute;border-radius:50%;background:rgba(255,255,255,.9)}
+#callout{position:absolute;right:136px;top:1001px;height:64px;display:flex;align-items:center;gap:10px;padding:0 26px 0 20px;border-radius:32px;
+  background:#10b981;font-size:32px;font-weight:900;white-space:nowrap;box-shadow:0 14px 34px rgba(16,185,129,.5);transform-origin:calc(100% - 38px) 100%}
+#callout:after{content:"";position:absolute;right:26px;bottom:-11px;border-left:12px solid transparent;border-right:12px solid transparent;border-top:12px solid #10b981}
+#callout svg{width:32px;height:32px}
+
+/* ---------- 第三幕：结尾 ---------- */
+#iconGlow{position:absolute;left:240px;top:198px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,.5),rgba(6,182,212,0) 65%)}
+#icon{position:absolute;left:422px;top:380px;width:236px;height:236px;border-radius:58px;overflow:hidden;
+  box-shadow:0 30px 80px rgba(8,145,178,.55),inset 0 0 0 1.5px rgba(255,255,255,.2)}
+#icon svg{display:block;width:100%;height:100%}
+#word{top:650px;font-family:"Inter Display","Inter",sans-serif;font-size:136px;font-weight:900;letter-spacing:-4px;line-height:1.15}
+#word span{padding:0 2px;background:linear-gradient(180deg,#fff 35%,#a5f3fc 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#tagline{top:835px;font-size:58px;font-weight:900}
+.hl{position:relative;display:inline-block;margin-left:6px;padding:0 10px;color:#0b0b12}
+.hl i{position:absolute;left:0;top:8%;width:100%;height:88%;border-radius:14px;background:#ffd60a;transform-origin:0 50%}
+.hl b{position:relative;font-weight:900}
+#chips{top:968px;display:flex;flex-wrap:wrap;justify-content:center;gap:18px;padding:0 110px;white-space:normal}
+.chip{height:78px;display:flex;align-items:center;gap:12px;padding:0 32px 0 26px;border-radius:39px;font-size:38px;font-weight:700;white-space:nowrap;
+  background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.15);backdrop-filter:blur(14px)}
+.chip svg{width:36px;height:36px;color:#67e8f9}
+#ctarow{top:1188px}
+#cta{position:relative;display:inline-flex;align-items:center;height:112px;padding:0 60px;border-radius:56px;overflow:hidden;font-size:46px;font-weight:900;
+  background:linear-gradient(100deg,#2563eb,#06b6d4);box-shadow:0 24px 60px rgba(6,182,212,.45),inset 0 0 0 1.5px rgba(255,255,255,.25)}
+#cta span{position:relative}
+#shine{position:absolute;top:0;left:0;width:170px;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent)}
+#disc{top:1352px;font-size:30px;line-height:1.65;color:rgba(255,255,255,.5)}
+</style>
+</head>
+<body>
+<div id="bg" class="layer">
+  <div class="blob" id="b1"></div><div class="blob" id="b2"></div><div class="blob" id="b3"></div>
+  <div id="dots"></div><div id="vig"></div>
+</div>
+
+<div id="hook" class="layer">
+  <div class="row" id="h1">打开 App 之前</div>
+  <div class="row" id="h2">你每天要看多久</div>
+  <div class="row" id="h3row"><div id="h3"><i id="h3mark"></i><span id="h3t">开屏广告<span class="halt">？</span></span></div></div>
+  <div class="row" id="pillrow"><div id="pill"><span id="pillNum">3</span><span id="pillTxt">跳过</span></div></div>
+</div>
+
+<div id="cmp" class="layer">
+  <div class="row" id="ch1">同一台手机<span class="dot">·</span>同一个 App</div>
+  <div class="row" id="ch2">打开网易有道词典，看开屏广告</div>
+  <div id="rig" class="layer">
+    <div id="sideL" class="layer">
+      <div class="phone" id="phoneL"><div class="screen"><img id="imgL" alt=""></div></div>
+      <div class="tag bad" id="tagL" style="left:302px"><i data-i="x"></i>没装</div>
+    </div>
+    <div id="sideR" class="layer">
+      <div class="phone" id="phoneR"><div class="screen"><img id="imgR" alt=""></div></div>
+      <div class="tag good" id="tagR" style="left:754px"><i data-i="check"></i>装了 SplashSkip</div>
+    </div>
+    <div class="timer" id="timerL" style="left:302px"><i data-i="clock"></i><span class="lbl">广告</span><span class="val" id="valL">0.0s</span><div class="track"><div class="fill" id="fillL"></div></div></div>
+    <div class="timer" id="timerR" style="left:754px"><i data-i="clock"></i><span class="lbl">广告</span><span class="val" id="valR">0.0s</span><div class="track"><div class="fill" id="fillR"></div></div></div>
+    <div class="res wait cjk" id="waitL" style="left:302px">还在等广告…</div>
+    <div class="res" id="resL" style="left:302px;color:#ff5d6c"><i data-i="x"></i>干等广告 约4秒</div>
+    <div class="res" id="resR" style="left:754px;color:#34d399"><i data-i="check"></i>约1秒直达首页</div>
+    <div class="ring" id="ring0"></div><div class="ring" id="ring1"></div><div class="ring" id="ring2"></div>
+    <div id="tap"></div>
+    <div id="callout"><i data-i="zap" class="solid"></i>自动点击<span class="halt">“跳过”</span></div>
+  </div>
+</div>
+
+<div id="end" class="layer">
+  <div id="iconGlow"></div>
+  <div id="icon">
+    <!-- 和 App 桌面图标同一套：res/drawable/ic_launcher_background.xml + ic_launcher_foreground.xml，取中间 72x72 的可见区域 -->
+    <svg viewBox="18 18 72 72"><defs><linearGradient id="ig" x1="0" y1="0" x2="108" y2="108" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#1E40AF"/><stop offset="1" stop-color="#0891B2"/></linearGradient></defs>
+      <rect width="108" height="108" fill="url(#ig)"/>
+      <path d="M35,39L60,54L35,69Z" fill="#fff" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M67,39L74,39L74,69L67,69Z" fill="#fff" stroke="#fff" stroke-width="4" stroke-linejoin="round"/></svg>
+  </div>
+  <div class="row" id="word">SplashSkip</div>
+  <div class="row" id="tagline">自动点掉开屏广告的<span class="hl"><i id="tlmark"></i><b class="halt">“跳过”</b></span></div>
+  <div class="row" id="chips">
+    <span class="chip"><i data-i="wifiOff"></i>不联网</span><span class="chip"><i data-i="cloudOff"></i>不上传</span><span class="chip"><i data-i="checkSq"></i>只对你勾选的 App 生效</span>
+  </div>
+  <div class="row" id="ctarow"><div id="cta"><div id="shine"></div><span>免费开源 · 下载方式见主页</span></div></div>
+  <div class="row" id="disc">目前测试：华为手机 + 有道词典，其他机型、App 不保证<br>仅供个人使用</div>
+</div>
+
+<script>
+// 线条图标（Feather 风格）
+const ICONS = {
+  x: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  check: '<polyline points="20 6 9 17 4 12"/>',
+  clock: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9.5 2.5h5"/>',
+  zap: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+  wifiOff: '<line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>',
+  cloudOff: '<path d="M22.61 16.95A5 5 0 0 0 18 10h-1.26a8 8 0 0 0-7.05-6M5 5a8 8 0 0 0 4 15h9a5 5 0 0 0 1.7-.3"/><line x1="1" y1="1" x2="23" y2="23"/>',
+  checkSq: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+};
+document.querySelectorAll('i[data-i]').forEach(el => {
+  el.outerHTML = `<svg class="i ${el.className}" viewBox="0 0 24 24">${ICONS[el.dataset.i]}</svg>`;
+});
+function splitChars(el) {
+  el.innerHTML = [...el.textContent].map(c => `<span>${c === ' ' ? '&nbsp;' : c}</span>`).join('');
+  return [...el.children];
+}
+const $ = id => document.getElementById(id);
+const h2Chars = splitChars($('h2'));
+const wordChars = splitChars($('word'));
+const chips = [...document.querySelectorAll('.chip')];
+
+// ---------- 时间轴（秒） ----------
+window.DURATION = 13.6;
+// 两段录屏按"广告出现"对齐：a 第 95 帧、b 第 149 帧出现广告；
+// 广告开始消失：a 第 218 帧（自己倒计时结束），b 第 186 帧（被 SplashSkip 点掉）。
+const FPS = 30;
+const G0 = 2.4;                 // 录屏开始播放的时刻
+const A0 = 65, B0 = 119;        // 此刻对应的帧：广告出现前 1 秒（开屏白页）
+const AF = 258, BF = 216;       // 最后一帧好画面，之后定格（a 后面有下拉通知，b 后面切到了多任务）
+const TA = G0 + 1;              // 广告出现，两边开始计时
+const TR = TA + (186 - 149) / FPS;  // 右边广告被点掉：1.2 秒
+const TL = TA + (218 - 95) / FPS;   // 左边广告自己结束：4.1 秒
+
+// ---------- 小工具 ----------
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, p) => a + (b - a) * p;
+const oCubic = p => 1 - Math.pow(1 - p, 3);
+const iCubic = p => p * p * p;
+const ioCubic = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const oExpo = p => p >= 1 ? 1 : 1 - Math.pow(2, -10 * p);
+const oBack = (p, s = 1.7) => 1 + (s + 1) * Math.pow(p - 1, 3) + s * Math.pow(p - 1, 2);
+const spring = p => p <= 0 ? 0 : p >= 1 ? 1 : 1 - Math.exp(-6.5 * p) * Math.cos(9 * p);
+function S(el, { x = 0, y = 0, s = 1, r = 0, o = 1, b = 0 } = {}, base = '') {
+  el.style.opacity = o;
+  el.style.transform = `${base}translate(${x}px,${y}px) scale(${s}) rotate(${r}deg)`;
+  el.style.filter = b > 0.05 ? `blur(${b}px)` : 'none';
+}
+const show = (el, on) => { el.style.display = on ? '' : 'none'; return on; };
+
+// ---------- 背景 ----------
+const PAL = { // 每个光斑在三幕里的颜色：开头偏暖（烦），后面是 App 的品牌蓝青色
+  hook: [[255, 46, 99, .34], [124, 58, 237, .40], [245, 158, 11, .10]],
+  cmp:  [[30, 64, 175, .42], [8, 145, 178, .28], [30, 58, 138, .16]],
+  end:  [[37, 99, 235, .52], [6, 182, 212, .42], [14, 165, 233, .16]],
+};
+const blobs = [$('b1'), $('b2'), $('b3')];
+function bg(t) {
+  const pC = ioCubic(prog(t, 2.2, 2.9)), pE = ioCubic(prog(t, 8.9, 9.7));
+  const pos = [
+    [180 + 90 * Math.sin(.5 * t), 330 + 70 * Math.cos(.4 * t)],
+    [920 + 80 * Math.cos(.45 * t), 1560 + 90 * Math.sin(.35 * t)],
+    [540 + 120 * Math.sin(.3 * t + 1), 950 + 100 * Math.cos(.25 * t)],
+  ];
+  blobs.forEach((el, i) => {
+    const c = PAL.hook[i].map((v, k) => lerp(lerp(v, PAL.cmp[i][k], pC), PAL.end[i][k], pE));
+    const rgb = `${c[0] | 0},${c[1] | 0},${c[2] | 0}`;
+    el.style.background = `radial-gradient(closest-side,rgba(${rgb},${c[3]}) 0%,rgba(${rgb},${c[3] * .45}) 40%,rgba(${rgb},0) 100%)`;
+    el.style.transform = `translate(${pos[i][0] - 750}px,${pos[i][1] - 750}px)`;
+  });
+}
+
+// ---------- 第一幕：开头提问 0 ~ 2.55s ----------
+function hook(t) {
+  if (!show($('hook'), t < 2.6)) return;
+  const pe = iCubic(prog(t, 2.2, 2.55));                 // 退场：放大、虚化、淡出
+  const sh = prog(t, 0.4, 0.66), amp = sh > 0 && sh < 1 ? (1 - sh) * 12 : 0;  // "开屏广告？"砸下来时的震动
+  const L = $('hook');
+  L.style.transform = `translate(${amp * Math.sin(t * 95)}px,${amp * Math.cos(t * 120)}px) scale(${1 + .2 * pe})`;
+  L.style.opacity = 1 - pe;
+  L.style.filter = pe > .01 ? `blur(${16 * pe}px)` : 'none';
+
+  const p1 = oCubic(prog(t, 0, .3));
+  S($('h1'), { y: 30 * (1 - p1), o: p1 });
+  h2Chars.forEach((c, i) => {
+    const p = prog(t, .06 + i * .035, .38 + i * .035);
+    S(c, { y: 60 * (1 - oCubic(p)), s: .6 + .4 * oBack(p, 2.2), o: clamp(p * 2.5), b: 10 * (1 - oCubic(p)) });
+  });
+  $('h3mark').style.transform = `skewX(-6deg) scaleX(${oExpo(prog(t, .3, .62))})`;
+  const p3 = prog(t, .36, .76);
+  S($('h3t'), { s: 1.5 - .5 * spring(p3), o: clamp(p3 * 3) });
+
+  // 模仿广告右下角的"3 跳过"按钮倒计时
+  const pp = prog(t, .62, 1.12);
+  S($('pill'), { y: 40 * (1 - oCubic(pp)), s: .5 + .5 * spring(pp), o: clamp(pp * 3) });
+  const n = t < 1.2 ? 3 : t < 1.8 ? 2 : 1, tick = n === 3 ? .62 : n === 2 ? 1.2 : 1.8;
+  $('pillNum').textContent = n;
+  const pk = prog(t, tick, tick + .3);
+  S($('pillNum'), { s: 1 + .6 * (1 - oBack(pk, 2)), o: clamp(pk * 4) });
+  const pr = prog(t, tick, tick + .6);
+  $('pill').style.boxShadow = `0 0 0 ${26 * oCubic(pr)}px rgba(255,214,10,${pr > 0 && pr < 1 ? .35 * (1 - pr) : 0}),0 20px 60px rgba(0,0,0,.35)`;
+}
+
+// ---------- 第二幕：左右对比 2.3 ~ 9.3s ----------
+const imgL = $('imgL'), imgR = $('imgR');
+let curA = -1, curB = -1;
+const pad = n => String(n).padStart(4, '0');
+async function footage(t) {
+  const fa = Math.round(clamp(A0 + (t - G0) * FPS, A0, AF));
+  const fb = Math.round(clamp(B0 + (t - G0) * FPS, B0, BF));
+  const jobs = [];
+  if (fa !== curA) { curA = fa; imgL.src = `../out/frames/a/${pad(fa)}.jpg`; jobs.push(imgL.decode()); }
+  if (fb !== curB) { curB = fb; imgR.src = `../out/frames/b/${pad(fb)}.jpg`; jobs.push(imgR.decode()); }
+  await Promise.all(jobs);
+}
+const C = 'translateX(-50%) ';
+function timerState(el, val, fill, v, color, fillBg, border, bgc) {
+  val.textContent = v.toFixed(1) + 's';
+  val.style.color = color;
+  el.style.color = color;
+  fill.style.width = (v / 5 * 100) + '%';
+  fill.style.background = fillBg;
+  el.style.borderColor = border;
+  el.style.background = bgc;
+}
+function cmp(t) {
+  if (!show($('cmp'), t > 2.25 && t < 9.4)) return;
+  const pe = iCubic(prog(t, 8.85, 9.3));                 // 退场
+  const ph1 = oCubic(prog(t, 2.3, 2.75)), ph2 = oCubic(prog(t, 2.38, 2.83));
+  S($('ch1'), { y: 34 * (1 - ph1) - 50 * pe, o: ph1 * (1 - pe), b: 10 * (1 - ph1) });
+  S($('ch2'), { y: 34 * (1 - ph2) - 50 * pe, o: ph2 * (1 - pe), b: 10 * (1 - ph2) });
+
+  // 镜头：右边点掉广告时轻推一下，退场时缩小虚化
+  const punch = 1 + .05 * Math.sin(Math.PI * oCubic(prog(t, TR - .1, TR + .9)));
+  const rig = $('rig');
+  rig.style.transform = `scale(${punch * (1 - .08 * pe)})`;
+  rig.style.opacity = 1 - pe;
+  rig.style.filter = pe > .01 ? `blur(${12 * pe}px)` : 'none';
+
+  const pl = prog(t, 2.3, 2.95), pr = prog(t, 2.38, 3.03);
+  S($('sideL'), { y: 260 * (1 - spring(pl)), o: clamp(pl * 3) });
+  S($('sideR'), { y: 260 * (1 - spring(pr)), o: clamp(pr * 3) });
+  const tl = prog(t, 2.6, 3.0), tr = prog(t, 2.68, 3.08);
+  S($('tagL'), { s: .4 + .6 * spring(tl), o: clamp(tl * 3) }, C);
+  S($('tagR'), { s: .4 + .6 * spring(tr), o: clamp(tr * 3) }, C);
+
+  // 计时器：广告出现时两边同时开始
+  const rDone = t >= TR, lDone = t >= TL, run = t >= TA;
+  const vL = clamp(t - TA, 0, TL - TA), vR = clamp(t - TA, 0, TR - TA);
+  const shakeL = lDone ? 10 * Math.sin((t - TL) * 60) * (1 - prog(t, TL, TL + .45)) : 0;
+  const ptl = oCubic(prog(t, 2.72, 3.1)), ptr = oCubic(prog(t, 2.8, 3.18));
+  S($('timerL'), { x: shakeL, y: 30 * (1 - ptl), o: ptl }, C);
+  S($('timerR'), { y: 30 * (1 - ptr), o: ptr }, C);
+  const idle = 'rgba(255,255,255,.45)', blue = 'linear-gradient(90deg,#3b82f6,#22d3ee)';
+  const red = 'linear-gradient(90deg,#f43f5e,#fb7185)', green = 'linear-gradient(90deg,#10b981,#6ee7b7)';
+  const glass = ['rgba(255,255,255,.13)', 'rgba(255,255,255,.06)'];
+  if (rDone) timerState($('timerR'), $('valR'), $('fillR'), vR, '#34d399', green, 'rgba(52,211,153,.6)', 'rgba(16,185,129,.14)');
+  else timerState($('timerR'), $('valR'), $('fillR'), vR, run ? '#fff' : idle, blue, ...glass);
+  const warn = prog(t, TR, TR + .6);                      // 右边结束后，左边渐渐变红
+  if (lDone) timerState($('timerL'), $('valL'), $('fillL'), vL, '#ff5d6c', red, 'rgba(255,93,108,.6)', 'rgba(244,63,94,.14)');
+  else timerState($('timerL'), $('valL'), $('fillL'), vL,
+    !run ? idle : `rgb(255,${lerp(255, 138, warn) | 0},${lerp(255, 149, warn) | 0})`, rDone ? red : blue, ...glass);
+
+  // 结果文字
+  const prr = prog(t, TR, TR + .45);
+  S($('resR'), { s: .6 + .4 * spring(prr), o: clamp(prr * 3) }, C);
+  const pw = prog(t, TR + .25, TR + .6) * (1 - prog(t, TL - .1, TL));
+  S($('waitL'), { o: pw * (.65 + .35 * Math.cos((t - TR) * 7)) }, C);
+  const plr = prog(t, TL, TL + .45);
+  S($('resL'), { x: shakeL, s: .6 + .4 * spring(plr), o: clamp(plr * 3) }, C);
+
+  // 手机外发光：绿色 = 已跳过，红色 = 还在等
+  const aR = rDone ? lerp(.85, .35, oCubic(prog(t, TR, TR + 1.2))) : 0;
+  const aL = lDone ? lerp(.85, .35, oCubic(prog(t, TL, TL + 1.2))) : warn * (.22 + .1 * Math.sin(t * 8));
+  const base = '0 0 0 1.5px rgba(255,255,255,.14),0 40px 90px rgba(0,0,0,.6)';
+  $('phoneR').style.boxShadow = `${base},0 0 90px 10px rgba(52,211,153,${aR})`;
+  $('phoneL').style.boxShadow = `${base},0 0 90px 10px rgba(255,77,94,${aL})`;
+
+  // 点掉"跳过"的一瞬间：波纹 + 提示气泡（按钮在右边屏幕里的位置：宽 89.2%、高 87.2%）
+  const bx = 906, by = 1108;
+  [0, 1, 2].forEach(i => {
+    const p = prog(t, TR - .07 + i * .1, TR + .53 + i * .1), d = lerp(30, 190, oCubic(p));
+    const el = $('ring' + i);
+    Object.assign(el.style, { left: bx - d / 2 + 'px', top: by - d / 2 + 'px', width: d + 'px', height: d + 'px', opacity: p > 0 && p < 1 ? 1 - p : 0 });
+  });
+  const pt = prog(t, TR - .07, TR + .3), dt = lerp(70, 36, pt);
+  Object.assign($('tap').style, { left: bx - dt / 2 + 'px', top: by - dt / 2 + 'px', width: dt + 'px', height: dt + 'px', opacity: pt > 0 && pt < 1 ? .9 * (1 - pt) : 0 });
+  const pc = prog(t, TR - .05, TR + .4), pco = 1 - prog(t, TR + 1.3, TR + 1.6);
+  S($('callout'), { y: 20 * (1 - oCubic(pc)), s: .5 + .5 * spring(pc), o: clamp(pc * 3) * pco });
+}
+
+// ---------- 第三幕：结尾 9.15s ~ ----------
+function end(t) {
+  if (!show($('end'), t > 9.1)) return;
+  const pi = prog(t, 9.15, 9.85);
+  const bob = 8 * Math.sin((t - 9.85) * 2.2) * prog(t, 9.85, 10.5);
+  S($('icon'), { y: bob, s: .2 + .8 * spring(pi), r: -25 * (1 - oCubic(pi)), o: clamp(pi * 4) });
+  S($('iconGlow'), { y: bob, o: clamp(pi * 2) * (.8 + .2 * Math.sin(t * 3)) });
+  wordChars.forEach((c, i) => {
+    const p = prog(t, 9.3 + i * .035, 9.8 + i * .035);
+    S(c, { y: 80 * (1 - oExpo(p)), o: clamp(p * 2.5), b: 12 * (1 - oCubic(p)) });
+  });
+  const pt = oCubic(prog(t, 9.6, 10.05));
+  S($('tagline'), { y: 30 * (1 - pt), o: pt });
+  $('tlmark').style.transform = `skewX(-6deg) scaleX(${oExpo(prog(t, 9.85, 10.2))})`;
+  chips.forEach((c, i) => {
+    const p = prog(t, 9.85 + i * .09, 10.35 + i * .09);
+    S(c, { y: 24 * (1 - oCubic(p)), s: .7 + .3 * spring(p), o: clamp(p * 3) });
+  });
+  const pc = prog(t, 10.2, 10.85);
+  S($('cta'), { s: (.6 + .4 * spring(pc)) * (1 + .015 * Math.sin((t - 10.85) * 4) * prog(t, 10.85, 11.2)), o: clamp(pc * 3) });
+  const q = t < 10.8 ? 0 : ((t - 10.8) % 1.8) / 1.8;       // 按钮上的高光每 1.8 秒扫一次
+  $('shine').style.transform = `translateX(${lerp(-220, 900, ioCubic(clamp(q / .55)))}px) skewX(-20deg)`;
+  const pd = oCubic(prog(t, 10.4, 10.85));
+  S($('disc'), { y: 16 * (1 - pd), o: pd });
+}
+
+window.renderFrame = async t => {
+  bg(t); hook(t); cmp(t); end(t);
+  if (t > 2.2 && t < 9.4) await footage(t);
+};
+</script>
+</body>
+</html>
