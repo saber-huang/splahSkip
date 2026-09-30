@@ -39,6 +39,11 @@
             android:label="@string/pick_apps" />
 
         <activity
+            android:name=".DiagnosticsActivity"
+            android:exported="false"
+            android:label="@string/diagnostics" />
+
+        <activity
             android:name=".RulesActivity"
             android:exported="false"
             android:label="@string/rules" />

@@ -11,6 +11,7 @@ import android.widget.Toast
 class RulesActivity : Activity() {
 
     private lateinit var keywordsEdit: EditText
+    private lateinit var idKeywordsEdit: EditText
     private lateinit var windowEdit: EditText
     private lateinit var lengthEdit: EditText
 
@@ -19,6 +20,7 @@ class RulesActivity : Activity() {
         setContentView(R.layout.activity_rules)
         actionBar?.setDisplayHomeAsUpEnabled(true) // 标题栏左边的返回箭头
         keywordsEdit = findViewById(R.id.keywords_edit)
+        idKeywordsEdit = findViewById(R.id.id_keywords_edit)
         windowEdit = findViewById(R.id.window_edit)
         lengthEdit = findViewById(R.id.length_edit)
         showCurrentRules()
@@ -43,6 +45,7 @@ class RulesActivity : Activity() {
     /** 把现在生效的规则填进输入框 */
     private fun showCurrentRules() {
         keywordsEdit.setText(SkipSettings.keywords(this).joinToString("\n"))
+        idKeywordsEdit.setText(SkipSettings.idKeywords(this).joinToString("\n"))
         windowEdit.setText(SkipSettings.windowSeconds(this).toString())
         lengthEdit.setText(SkipSettings.maxLength(this).toString())
     }
@@ -50,11 +53,17 @@ class RulesActivity : Activity() {
     /** 检查填的内容，没问题才保存；有问题就提示，不保存 */
     private fun save() {
         val keywords = SkipRules.parseKeywords(keywordsEdit.text.toString())
+        val idKeywords = SkipRules.parseKeywords(idKeywordsEdit.text.toString())
         val seconds = windowEdit.text.toString().trim().toIntOrNull()
         val length = lengthEdit.text.toString().trim().toIntOrNull()
 
         if (keywords.isEmpty()) {
             toast(getString(R.string.rules_err_keywords))
+            return
+        }
+        // ID 关键词太短会匹配到一大堆按钮，容易误点，所以要求至少 3 个字符（可以不填）
+        idKeywords.firstOrNull { it.length < SkipRules.MIN_ID_KEYWORD_LENGTH }?.let {
+            toast(getString(R.string.rules_err_id, SkipRules.MIN_ID_KEYWORD_LENGTH, it))
             return
         }
         if (seconds == null || seconds !in SkipRules.MIN_SECONDS..SkipRules.MAX_SECONDS) {
@@ -66,7 +75,7 @@ class RulesActivity : Activity() {
             return
         }
 
-        SkipSettings.setRules(this, keywords, length, seconds)
+        SkipSettings.setRules(this, keywords, idKeywords, length, seconds)
         toast(getString(R.string.rules_saved))
         finish()
     }

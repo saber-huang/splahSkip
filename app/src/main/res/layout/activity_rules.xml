@@ -55,6 +55,31 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
+                android:text="@string/rules_id_title" />
+
+            <TextView
+                style="@style/Text.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/rules_id_label" />
+
+            <EditText
+                android:id="@+id/id_keywords_edit"
+                style="@style/Widget.SplashSkip.Input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="top|start"
+                android:hint="@string/rules_id_hint"
+                android:inputType="textMultiLine|textNoSuggestions"
+                android:minLines="2" />
+
+            <TextView
+                style="@style/Text.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
                 android:text="@string/rules_window_title" />
 
             <TextView

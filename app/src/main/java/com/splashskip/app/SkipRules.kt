@@ -11,6 +11,9 @@ object SkipRules {
     const val MIN_LENGTH = 2
     const val MAX_LENGTH_LIMIT = 30
 
+    // 按钮 ID 关键词至少几个字符：太短的词（比如 "a"）会匹配到一大堆按钮，容易误点
+    const val MIN_ID_KEYWORD_LENGTH = 3
+
     // 切换到一个新 App 后，多少秒内才会去找并点"跳过"
     const val DEFAULT_WINDOW_SECONDS = 5
     const val MIN_SECONDS = 1

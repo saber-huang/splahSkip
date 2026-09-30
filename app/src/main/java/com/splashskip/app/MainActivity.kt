@@ -20,6 +20,7 @@ class MainActivity : Activity() {
     private lateinit var statusHint: TextView
     private lateinit var openSettingsButton: Button
     private lateinit var allowedText: TextView
+    private lateinit var diagnosticsText: TextView
     private lateinit var countText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +31,7 @@ class MainActivity : Activity() {
         statusHint = findViewById(R.id.status_hint)
         openSettingsButton = findViewById(R.id.open_settings_button)
         allowedText = findViewById(R.id.allowed_text)
+        diagnosticsText = findViewById(R.id.diagnostics_text)
         countText = findViewById(R.id.count_text)
 
         // 总开关：先显示保存的状态，再监听用户的操作（顺序不能反，否则初始化时会触发一次保存）
@@ -47,6 +49,11 @@ class MainActivity : Activity() {
         // 修改"跳过"的规则（关键词、生效时间、文字长度）
         findViewById<View>(R.id.rules_button).setOnClickListener {
             startActivity(Intent(this, RulesActivity::class.java))
+        }
+
+        // 诊断记录：排查"为什么没跳成功"用
+        findViewById<View>(R.id.diagnostics_button).setOnClickListener {
+            startActivity(Intent(this, DiagnosticsActivity::class.java))
         }
 
         // 防止被系统关闭：能打开设置页就跳过去并提示怎么设置，打不开就弹出手动设置的说明
@@ -87,6 +94,15 @@ class MainActivity : Activity() {
         } else {
             allowedText.text = getString(R.string.apps_selected, allowedCount)
             allowedText.setTextColor(getColor(R.color.text_secondary))
+        }
+
+        // 诊断记录开着的时候用醒目的颜色提醒，用完记得关
+        if (SkipSettings.isDiagnosticsEnabled(this)) {
+            diagnosticsText.text = getString(R.string.diagnostics_summary_on, DiagnosticLog.count(this))
+            diagnosticsText.setTextColor(getColor(R.color.warning))
+        } else {
+            diagnosticsText.setText(R.string.diagnostics_summary_off)
+            diagnosticsText.setTextColor(getColor(R.color.text_secondary))
         }
 
         countText.text = NumberFormat.getIntegerInstance().format(SkipCounter.get(this))

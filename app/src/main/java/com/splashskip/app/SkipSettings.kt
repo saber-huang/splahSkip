@@ -10,6 +10,8 @@ object SkipSettings {
     private const val KEY_ENABLED = "enabled"
     private const val KEY_ALLOWED_APPS = "allowed_apps"
     private const val KEY_KEYWORDS = "keywords"
+    private const val KEY_ID_KEYWORDS = "id_keywords"
+    private const val KEY_DIAGNOSTICS = "diagnostics"
     private const val KEY_MAX_LENGTH = "max_length"
     private const val KEY_WINDOW_SECONDS = "window_seconds"
 
@@ -42,15 +44,20 @@ object SkipSettings {
             ?.takeIf { it.isNotEmpty() }
             ?: SkipRules.DEFAULT_KEYWORDS
 
+    /** 按钮 ID 关键词（进阶）：默认一个都没有，也就是不按 ID 匹配 */
+    fun idKeywords(context: Context): List<String> =
+        prefs(context).getString(KEY_ID_KEYWORDS, null)?.let { SkipRules.parseKeywords(it) } ?: emptyList()
+
     /** 按钮上的文字最多几个字 */
     fun maxLength(context: Context): Int = prefs(context).getInt(KEY_MAX_LENGTH, SkipRules.DEFAULT_MAX_LENGTH)
 
     /** 切换到新 App 后，多少秒内才会去点"跳过" */
     fun windowSeconds(context: Context): Int = prefs(context).getInt(KEY_WINDOW_SECONDS, SkipRules.DEFAULT_WINDOW_SECONDS)
 
-    fun setRules(context: Context, keywords: List<String>, maxLength: Int, windowSeconds: Int) {
+    fun setRules(context: Context, keywords: List<String>, idKeywords: List<String>, maxLength: Int, windowSeconds: Int) {
         prefs(context).edit()
             .putString(KEY_KEYWORDS, keywords.joinToString("\n"))
+            .putString(KEY_ID_KEYWORDS, idKeywords.joinToString("\n"))
             .putInt(KEY_MAX_LENGTH, maxLength)
             .putInt(KEY_WINDOW_SECONDS, windowSeconds)
             .apply()
@@ -58,6 +65,13 @@ object SkipSettings {
 
     /** 恢复默认规则：把设置过的删掉，读取时就自动用默认值 */
     fun resetRules(context: Context) {
-        prefs(context).edit().remove(KEY_KEYWORDS).remove(KEY_MAX_LENGTH).remove(KEY_WINDOW_SECONDS).apply()
+        prefs(context).edit().remove(KEY_KEYWORDS).remove(KEY_ID_KEYWORDS).remove(KEY_MAX_LENGTH).remove(KEY_WINDOW_SECONDS).apply()
+    }
+
+    /** 诊断记录开关：默认关闭，只有需要排查"为什么没跳成功"时才打开 */
+    fun isDiagnosticsEnabled(context: Context): Boolean = prefs(context).getBoolean(KEY_DIAGNOSTICS, false)
+
+    fun setDiagnosticsEnabled(context: Context, enabled: Boolean) {
+        prefs(context).edit().putBoolean(KEY_DIAGNOSTICS, enabled).apply()
     }
 }

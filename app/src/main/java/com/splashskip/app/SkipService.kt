@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.inputmethod.InputMethod
+import java.util.Locale
 
 /**
  * 无障碍服务：每次切换到一个新 App，在设定的时间内（默认 5 秒）找"跳过"按钮，找到就点一下。
@@ -29,6 +30,11 @@ class SkipService : AccessibilityService() {
     private var ignoredPackages = emptySet<String>()
 
     private var lastLog = ""
+
+    // 诊断记录：这次切换有没有在记录、已经拍了几张快照、最近一次点击的说明
+    private var recording = false
+    private var snapshotCount = 0
+    private var lastClick = ""
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -56,8 +62,9 @@ class SkipService : AccessibilityService() {
             currentPackage = pkg
             switchTime = now
             clicked = false
-            val note = if (SkipSettings.isAllowed(this, pkg)) "" else "（不在白名单，不处理）"
-            log("切换到 App：$pkg$note")
+            val allowed = SkipSettings.isAllowed(this, pkg)
+            log("切换到 App：$pkg${if (allowed) "" else "（不在白名单，不处理）"}")
+            safely { startDiagnostics(pkg, event.className?.toString(), allowed && pkg !in ignoredPackages) }
         }
 
         // 只处理：当前 App 的界面、这次还没点过、切换过来的时间没超过设定的秒数
@@ -65,11 +72,16 @@ class SkipService : AccessibilityService() {
         if (now - switchTime > SkipSettings.windowSeconds(this) * 1000L) return
         if (!SkipSettings.isAllowed(this, pkg)) return // 白名单：没勾选的 App 不处理
 
+        if (recording) safely { takeSnapshotIfDue(pkg, now) }
+
         for (window in windows) {
             val root = window.root ?: continue
             if (root.packageName?.toString() == pkg && findAndClickSkip(root)) {
                 clicked = true
                 SkipCounter.increment(this)
+                if (recording) safely {
+                    DiagnosticLog.append(this, "✔ $lastClick（切换后 ${String.format(Locale.US, "%.1f", (now - switchTime) / 1000.0)} 秒）")
+                }
                 return
             }
         }
@@ -87,14 +99,18 @@ class SkipService : AccessibilityService() {
         // 每次扫描只读一次规则，不要每个元素都去读
         val keywords = SkipSettings.keywords(this)
         val maxLength = SkipSettings.maxLength(this)
+        val idKeywords = SkipSettings.idKeywords(this)
         val queue = ArrayDeque(listOf(root))
         var visited = 0
         while (queue.isNotEmpty() && visited < MAX_NODES) {
             val node = queue.removeFirst()
             visited++
-            val isSkip = SkipMatcher.isSkipText(node.text, keywords, maxLength) ||
+            val byText = SkipMatcher.isSkipText(node.text, keywords, maxLength) ||
                 SkipMatcher.isSkipText(node.contentDescription, keywords, maxLength)
-            if (isSkip && node.isVisibleToUser && click(node)) return true
+            // 按 ID 匹配更容易误点，所以要求更严：最近的可点击元素本身必须是按钮大小（否则可能是整张广告，点了会打开广告）
+            val byId = !byText && idKeywords.isNotEmpty() && SkipMatcher.isSkipId(node.viewIdResourceName, idKeywords) &&
+                findClickable(node)?.let { isButtonSized(it) } == true
+            if ((byText || byId) && node.isVisibleToUser && click(node, if (byText) "按文字" else "按 ID")) return true
             for (i in 0 until node.childCount) {
                 node.getChild(i)?.let { queue.add(it) }
             }
@@ -103,21 +119,23 @@ class SkipService : AccessibilityService() {
     }
 
     /** 点"跳过"：先让按钮自己执行点击；不行的话，模拟手指点一下文字中间 */
-    private fun click(node: AccessibilityNodeInfo): Boolean {
-        log("找到候选：${describe(node)}")
+    private fun click(node: AccessibilityNodeInfo, reason: String): Boolean {
+        log("找到候选（$reason）：${describe(node)}")
 
         val button = findClickable(node)
         if (button != null && isButtonSized(button) &&
             button.performAction(AccessibilityNodeInfo.ACTION_CLICK)
         ) {
-            log("已点击（按钮点击）：${describe(button)}")
+            lastClick = "已点击（$reason，按钮点击）：${describe(button)}"
+            log(lastClick)
             return true
         }
 
         val bounds = Rect()
         node.getBoundsInScreen(bounds)
         if (isButtonSized(node) && tap(bounds.exactCenterX(), bounds.exactCenterY())) {
-            log("已点击（模拟手指）：位置=${bounds.toShortString()}")
+            lastClick = "已点击（$reason，模拟手指）：位置=${bounds.toShortString()}"
+            log(lastClick)
             return true
         }
 
@@ -162,6 +180,43 @@ class SkipService : AccessibilityService() {
         return "文字=\"$text\" id=${node.viewIdResourceName} 位置=${bounds.toShortString()} 可点击=${node.isClickable}"
     }
 
+    /** 诊断记录只是辅助功能，它出任何错都不能连累自动跳过：出错就记一笔日志，并停止这次记录 */
+    private inline fun safely(block: () -> Unit) {
+        try {
+            block()
+        } catch (e: Exception) {
+            recording = false
+            Log.w(TAG, "诊断记录出错，已停止本次记录：${e.javaClass.simpleName}")
+        }
+    }
+
+    /** 切换到一个新 App：如果诊断记录开着、这个 App 又在白名单里，就开始一条新记录 */
+    private fun startDiagnostics(pkg: String, activity: String?, eligible: Boolean) {
+        snapshotCount = 0
+        recording = eligible && SkipSettings.isDiagnosticsEnabled(this)
+        if (!recording) return
+        DiagnosticLog.startRecord(
+            this,
+            DiagnosticDump.header(
+                this, pkg, activity, SkipSettings.keywords(this), SkipSettings.idKeywords(this),
+                SkipSettings.windowSeconds(this), SkipSettings.maxLength(this),
+            ),
+        )
+    }
+
+    /** 切换后的第 0.5 秒、1.5 秒、3 秒各拍一张快照（广告常常晚一会儿才出来；界面没有变化的话，要等下一个事件才会拍） */
+    private fun takeSnapshotIfDue(pkg: String, now: Long) {
+        if (snapshotCount >= SNAPSHOT_AT_MS.size || now - switchTime < SNAPSHOT_AT_MS[snapshotCount]) return
+        snapshotCount++
+        DiagnosticLog.append(
+            this,
+            DiagnosticDump.snapshot(
+                windows, pkg, snapshotCount, now - switchTime,
+                SkipSettings.keywords(this), SkipSettings.idKeywords(this), SkipSettings.maxLength(this),
+            ),
+        )
+    }
+
     /** 打印到 Logcat；和上一条一模一样的就不重复打印 */
     private fun log(message: String) {
         if (message == lastLog) return
@@ -181,6 +236,7 @@ class SkipService : AccessibilityService() {
 
     companion object {
         private const val TAG = "SplashSkip"
+        private val SNAPSHOT_AT_MS = longArrayOf(500, 1_500, 3_000) // 切换后多久拍快照
         private const val MAX_NODES = 1000 // 每次最多检查多少个界面元素，防止界面太复杂时卡顿
         private const val MAX_PARENT_LEVELS = 3 // 从文字往外最多找几层可点击的按钮
         private const val TAP_DURATION_MS = 50L
