@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  图标前景：白色的"跳到下一个"符号（三角形加一竖），表示"跳过"。
+  108×108 的画布里，手机只保证显示正中间直径 66 的圆，符号全部画在这个圆里面，不会被裁掉。
+  描边的粗细和圆角让符号的边角变圆润。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- 三角形 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M35,39L60,54L35,69Z"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineJoin="round"
+        android:strokeWidth="4" />
+    <!-- 右边的竖条 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M67,39L74,39L74,69L67,69Z"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineJoin="round"
+        android:strokeWidth="4" />
+</vector>
