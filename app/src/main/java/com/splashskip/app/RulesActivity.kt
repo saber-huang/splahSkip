@@ -2,6 +2,7 @@ package com.splashskip.app
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -16,6 +17,7 @@ class RulesActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rules)
+        actionBar?.setDisplayHomeAsUpEnabled(true) // 标题栏左边的返回箭头
         keywordsEdit = findViewById(R.id.keywords_edit)
         windowEdit = findViewById(R.id.window_edit)
         lengthEdit = findViewById(R.id.length_edit)
@@ -27,6 +29,15 @@ class RulesActivity : Activity() {
             showCurrentRules()
             toast(getString(R.string.rules_reset_done))
         }
+    }
+
+    /** 点标题栏左边的返回箭头 = 返回上一页 */
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            finish()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     /** 把现在生效的规则填进输入框 */

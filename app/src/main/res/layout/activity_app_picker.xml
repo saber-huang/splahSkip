@@ -5,26 +5,44 @@
     android:orientation="vertical">
 
     <TextView
+        style="@style/Text.Caption"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="@string/pick_tip"
-        android:textSize="14sp" />
+        android:paddingStart="20dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="12dp"
+        android:text="@string/pick_tip" />
 
-    <ListView
-        android:id="@+id/app_list"
+    <!-- 列表放在一张卡片里；卡片会把列表的四个角裁成圆角 -->
+    <LinearLayout
+        style="@style/Widget.SplashSkip.Card"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <!-- 列表为空时由 ListView 自动显示它 -->
-    <TextView
-        android:id="@+id/empty_text"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:layout_weight="1"
-        android:gravity="center"
-        android:text="@string/loading"
-        android:textSize="16sp" />
+        android:orientation="vertical">
 
+        <ListView
+            android:id="@+id/app_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:divider="@color/divider"
+            android:dividerHeight="1dp"
+            android:footerDividersEnabled="false" />
+
+        <!-- 列表为空时由 ListView 自动显示它 -->
+        <TextView
+            android:id="@+id/empty_text"
+            style="@style/Text.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/loading"
+            android:textSize="16sp" />
+    </LinearLayout>
 </LinearLayout>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  全 App 的配色都在这里改（浅色模式）。深色模式的同名颜色在 values-night/colors.xml。
+  主色和桌面图标是一套：深蓝 → 青色。
+-->
+<resources>
+    <!-- 品牌色：顶部标题栏、状态栏、首页大卡片的起始色 -->
+    <color name="brand">#1E40AF</color>
+    <color name="brand_dark">#1E3A8A</color>
+    <color name="hero_end">#0E7490</color>
+
+    <!-- 强调色：主按钮、开关 -->
+    <color name="accent">#1E40AF</color>
+    <color name="accent_text">#1E40AF</color>
+    <color name="accent_control">#1E40AF</color>
+    <color name="on_accent">#FFFFFF</color>
+
+    <!-- 首页顶部深色区域里的文字 -->
+    <color name="on_hero">#FFFFFF</color>
+    <color name="on_hero_secondary">#E6FFFFFF</color>
+
+    <!-- 页面、卡片、文字、分割线 -->
+    <color name="background">#F3F5FA</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="text_primary">#111827</color>
+    <color name="text_secondary">#5B6472</color>
+    <color name="divider">#E4E7EE</color>
+
+    <!-- 状态色：正常（绿）、需要注意（橙） -->
+    <color name="success">#15803D</color>
+    <color name="warning">#B45309</color>
+
+    <!-- 输入框 -->
+    <color name="input_bg">#F8FAFC</color>
+    <color name="input_border">#CBD5E1</color>
+</resources>

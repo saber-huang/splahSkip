@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
@@ -25,6 +26,7 @@ class AppPickerActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_app_picker)
+        actionBar?.setDisplayHomeAsUpEnabled(true) // 标题栏左边的返回箭头
 
         val list = findViewById<ListView>(R.id.app_list)
         val emptyText = findViewById<TextView>(R.id.empty_text)
@@ -49,6 +51,15 @@ class AppPickerActivity : Activity() {
                 adapter.notifyDataSetChanged()
             }
         }.start()
+    }
+
+    /** 点标题栏左边的返回箭头 = 返回上一页 */
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            finish()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     /** 勾选或取消，并马上存进手机 */

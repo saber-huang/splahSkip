@@ -7,79 +7,118 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="16dp">
 
         <TextView
+            style="@style/Text.Caption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/rules_note"
-            android:textSize="14sp" />
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:text="@string/rules_note" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/rules_keywords_label"
-            android:textSize="16sp" />
-
-        <EditText
-            android:id="@+id/keywords_edit"
+        <!-- 三项规则放在一张卡片里 -->
+        <LinearLayout
+            style="@style/Widget.SplashSkip.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="top|start"
-            android:hint="@string/rules_keywords_hint"
-            android:inputType="textMultiLine"
-            android:minLines="4" />
+            android:layout_marginTop="12dp"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/rules_window_label"
-            android:textSize="16sp" />
+            <TextView
+                style="@style/Text.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rules_keywords_title" />
 
-        <EditText
-            android:id="@+id/window_edit"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:maxLength="2" />
+            <TextView
+                style="@style/Text.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/rules_keywords_label" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/rules_length_label"
-            android:textSize="16sp" />
+            <EditText
+                android:id="@+id/keywords_edit"
+                style="@style/Widget.SplashSkip.Input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="top|start"
+                android:hint="@string/rules_keywords_hint"
+                android:inputType="textMultiLine"
+                android:minLines="4" />
 
-        <EditText
-            android:id="@+id/length_edit"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:maxLength="2" />
+            <TextView
+                style="@style/Text.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/rules_window_title" />
+
+            <TextView
+                style="@style/Text.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/rules_window_label" />
+
+            <EditText
+                android:id="@+id/window_edit"
+                style="@style/Widget.SplashSkip.Input"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:inputType="number"
+                android:maxLength="2" />
+
+            <TextView
+                style="@style/Text.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/rules_length_title" />
+
+            <TextView
+                style="@style/Text.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/rules_length_label" />
+
+            <EditText
+                android:id="@+id/length_edit"
+                style="@style/Widget.SplashSkip.Input"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:inputType="number"
+                android:maxLength="2" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/save_button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/save" />
-
-            <Button
                 android:id="@+id/reset_button"
+                style="@style/Widget.SplashSkip.Button.Secondary"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:layout_weight="1"
                 android:text="@string/reset_default" />
 
+            <Button
+                android:id="@+id/save_button"
+                style="@style/Widget.SplashSkip.Button.Primary"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:text="@string/save" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

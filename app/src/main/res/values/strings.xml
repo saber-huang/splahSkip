@@ -1,9 +1,19 @@
 <resources>
     <string name="app_name">SplashSkip</string>
-    <string name="started">SplashSkip 已启动</string>
-    <string name="service_on">无障碍服务：已开启</string>
-    <string name="service_off">无障碍服务：未开启</string>
+    <string name="service_on">已开启</string>
+    <string name="service_off">未开启</string>
+    <string name="hero_subtitle">自动跳过开屏广告</string>
+    <string name="skipped_label">累计已跳过（次）</string>
+    <string name="service_title">无障碍服务</string>
+    <string name="service_hint_on">运行中：打开 App 时会自动跳过开屏广告</string>
+    <string name="service_hint_off">需要开启无障碍服务，才能自动点击“跳过”</string>
+    <string name="open_settings_again">打开无障碍设置</string>
     <string name="enable_skip">启用自动跳过</string>
+    <string name="enable_hint">关闭后不会点击任何广告</string>
+    <string name="settings_section">设置</string>
+    <string name="rules_summary">关键词、生效时间、文字长度</string>
+    <string name="keep_alive_summary">避免后台被系统关掉，导致失效</string>
+    <string name="footer_privacy">本应用不联网，不上传任何内容</string>
     <string name="open_settings">去开启无障碍服务</string>
     <string name="pick_apps">选择生效的 App</string>
     <string name="pick_apps_first">请先选择 App</string>
@@ -13,10 +23,13 @@
     <string name="no_apps">没有读取到已安装的 App</string>
     <string name="rules">规则设置</string>
     <string name="rules_note">改完点“保存”，马上生效，不用重启。搞乱了可以点“恢复默认”。</string>
-    <string name="rules_keywords_label">跳过按钮上的字（每行写一个）</string>
+    <string name="rules_keywords_title">跳过按钮上的字</string>
+    <string name="rules_keywords_label">每行写一个，按钮上的字包含其中任意一个就会点</string>
     <string name="rules_keywords_hint">例如：跳过</string>
-    <string name="rules_window_label">生效时间（秒）：切换到一个 App 后，多久之内才去点“跳过”</string>
-    <string name="rules_length_label">文字最长几个字：超过这个长度的文字不当作跳过按钮</string>
+    <string name="rules_window_title">生效时间（秒）</string>
+    <string name="rules_window_label">切换到一个 App 后，多久之内才去点“跳过”</string>
+    <string name="rules_length_title">文字最长几个字</string>
+    <string name="rules_length_label">超过这个长度的文字不当作跳过按钮</string>
     <string name="save">保存</string>
     <string name="reset_default">恢复默认</string>
     <string name="rules_saved">已保存，马上生效</string>
@@ -30,6 +43,5 @@
     <string name="keep_alive_hint_battery">在列表里找到 SplashSkip，设为允许；列表里没有它也没关系</string>
     <string name="keep_alive_guide_title">请手动设置</string>
     <string name="keep_alive_guide">没能自动打开设置页，请按下面的步骤手动设置，防止系统在后台把 SplashSkip 关掉：\n\n华为 / 荣耀手机：\n设置 → 电池 → 应用启动管理 → 找到 SplashSkip → 改成“手动管理” → 打开“自启动”“关联启动”“后台活动”三个开关。\n找不到的话，在设置顶部的搜索框里搜“启动管理”。\n\n其他品牌手机：\n在系统设置里找到 SplashSkip，把电池设置成“无限制”或“不优化”，并允许自启动和后台运行。</string>
-    <string name="skip_count">已成功跳过 %d 次</string>
     <string name="service_description">打开 App 后的几秒内，自动点击开屏广告上的“跳过”按钮，只对你勾选的 App 生效。本应用不联网，不上传任何内容。</string>
 </resources>

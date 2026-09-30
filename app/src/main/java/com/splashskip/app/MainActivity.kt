@@ -3,16 +3,22 @@ package com.splashskip.app
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import android.widget.Button
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
+import java.text.NumberFormat
 
 class MainActivity : Activity() {
 
     private lateinit var statusText: TextView
+    private lateinit var statusDot: View
+    private lateinit var statusHint: TextView
+    private lateinit var openSettingsButton: Button
     private lateinit var allowedText: TextView
     private lateinit var countText: TextView
 
@@ -20,27 +26,31 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         statusText = findViewById(R.id.status_text)
+        statusDot = findViewById(R.id.status_dot)
+        statusHint = findViewById(R.id.status_hint)
+        openSettingsButton = findViewById(R.id.open_settings_button)
         allowedText = findViewById(R.id.allowed_text)
         countText = findViewById(R.id.count_text)
 
         // 总开关：先显示保存的状态，再监听用户的操作（顺序不能反，否则初始化时会触发一次保存）
-        findViewById<Switch>(R.id.enable_switch).apply {
-            isChecked = SkipSettings.isEnabled(this@MainActivity)
-            setOnCheckedChangeListener { _, checked -> SkipSettings.setEnabled(this@MainActivity, checked) }
-        }
+        val enableSwitch = findViewById<Switch>(R.id.enable_switch)
+        enableSwitch.isChecked = SkipSettings.isEnabled(this)
+        enableSwitch.setOnCheckedChangeListener { _, checked -> SkipSettings.setEnabled(this, checked) }
+        // 点整张卡片也能切换开关
+        findViewById<View>(R.id.enable_row).setOnClickListener { enableSwitch.toggle() }
 
         // 选择哪些 App 需要自动跳过
-        findViewById<Button>(R.id.pick_apps_button).setOnClickListener {
+        findViewById<View>(R.id.pick_apps_button).setOnClickListener {
             startActivity(Intent(this, AppPickerActivity::class.java))
         }
 
         // 修改"跳过"的规则（关键词、生效时间、文字长度）
-        findViewById<Button>(R.id.rules_button).setOnClickListener {
+        findViewById<View>(R.id.rules_button).setOnClickListener {
             startActivity(Intent(this, RulesActivity::class.java))
         }
 
         // 防止被系统关闭：能打开设置页就跳过去并提示怎么设置，打不开就弹出手动设置的说明
-        findViewById<Button>(R.id.keep_alive_button).setOnClickListener {
+        findViewById<View>(R.id.keep_alive_button).setOnClickListener {
             val page = KeepAlive.openSettings(this)
             if (page == null) {
                 AlertDialog.Builder(this)
@@ -60,18 +70,38 @@ class MainActivity : Activity() {
         }
 
         // 打开系统的无障碍设置页，在里面找到 SplashSkip 并打开
-        findViewById<Button>(R.id.open_settings_button).setOnClickListener {
+        openSettingsButton.setOnClickListener {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
     }
 
-    // 每次回到这个界面（包括从选择页面返回），都刷新服务状态、已选 App 数和跳过次数
+    // 每次回到这个界面（包括从别的页面返回），都刷新服务状态、已选 App 数和跳过次数
     override fun onResume() {
         super.onResume()
-        statusText.setText(if (SkipService.isRunning) R.string.service_on else R.string.service_off)
+        showServiceStatus(SkipService.isRunning)
+
         val allowedCount = SkipSettings.allowedApps(this).size
-        allowedText.text =
-            if (allowedCount == 0) getString(R.string.pick_apps_first) else getString(R.string.apps_selected, allowedCount)
-        countText.text = getString(R.string.skip_count, SkipCounter.get(this))
+        if (allowedCount == 0) {
+            allowedText.setText(R.string.pick_apps_first)
+            allowedText.setTextColor(getColor(R.color.warning)) // 一个都没选，用醒目的颜色提醒
+        } else {
+            allowedText.text = getString(R.string.apps_selected, allowedCount)
+            allowedText.setTextColor(getColor(R.color.text_secondary))
+        }
+
+        countText.text = NumberFormat.getIntegerInstance().format(SkipCounter.get(this))
+    }
+
+    /** 服务开着：绿色，按钮变成不抢眼的描边按钮；没开：橙色，按钮是醒目的实心按钮，引导用户去开 */
+    private fun showServiceStatus(running: Boolean) {
+        val color = getColor(if (running) R.color.success else R.color.warning)
+        statusText.setText(if (running) R.string.service_on else R.string.service_off)
+        statusText.setTextColor(color)
+        statusDot.backgroundTintList = ColorStateList.valueOf(color)
+        statusHint.setText(if (running) R.string.service_hint_on else R.string.service_hint_off)
+
+        openSettingsButton.setText(if (running) R.string.open_settings_again else R.string.open_settings)
+        openSettingsButton.setBackgroundResource(if (running) R.drawable.bg_button_secondary else R.drawable.bg_button_primary)
+        openSettingsButton.setTextColor(getColor(if (running) R.color.accent_text else R.color.on_accent))
     }
 }

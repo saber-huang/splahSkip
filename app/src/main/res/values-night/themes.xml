@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 深色模式：只把系统主题换成深色的，其余（颜色、样式）沿用，颜色会自动取 values-night/colors.xml 里的 -->
+<resources>
+    <style name="Theme.SplashSkip" parent="@android:style/Theme.Material">
+        <item name="android:colorPrimary">@color/brand</item>
+        <item name="android:colorPrimaryDark">@color/brand_dark</item>
+        <item name="android:colorAccent">@color/accent_control</item>
+        <item name="android:colorControlActivated">@color/accent_control</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+    </style>
+</resources>
